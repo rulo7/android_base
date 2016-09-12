@@ -1,0 +1,71 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    def globalVariables = rootProject.extensions.ext;
+
+    compileSdkVersion globalVariables.get('androidCompileSdkVersion')
+    buildToolsVersion globalVariables.get('androidBuildToolsVersion')
+
+    defaultConfig {
+        applicationId globalVariables.get('androidApplicationId')
+        versionCode globalVariables.get('androidVersionCode')
+        versionName globalVariables.get('androidVersionName')
+        minSdkVersion globalVariables.get('androidMinSdkVersion')
+        targetSdkVersion globalVariables.get('androidTargetSdkVersion')
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('../config/buildsystem/debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+
+        staging {
+            debuggable true
+        }
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    // Dependencies with the rest of modules
+    debugCompile project(path: ':domain', configuration: 'debug')
+    stagingCompile project(path: ':domain', configuration: 'debug')
+    releaseCompile project(path: ':domain', configuration: 'release')
+
+    debugCompile project(path: ':data', configuration: 'debug')
+    stagingCompile project(path: ':data', configuration: 'staging')
+    releaseCompile project(path: ':data', configuration: 'release')
+
+    // Presentation dependencies
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.racobos:rosie_compatible_dagger_2:0.0.1@aar'
+    compile 'com.google.dagger:dagger:2.6.1'
+    apt 'com.google.dagger:dagger-compiler:2.6.1'
+    compile('com.jakewharton:butterknife:8.4.0')
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.6'
+    compile 'com.txusballesteros:mara:0.1'
+    apt 'com.txusballesteros:mara-compiler:0.1'
+    compile 'com.github.pedrovgs:renderers:3.2.0'
+}
