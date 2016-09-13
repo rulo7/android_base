@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/toolbar_component"
+        android:id="@id/toolbar_component"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@id/progress_bar_component"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
+    <FrameLayout
+        android:id="@id/recycler_paginated_component"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar_component"/>
+
+</RelativeLayout>
