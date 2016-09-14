@@ -11,10 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import com.txusballesteros.mara.Trait;
+import java.util.ArrayList;
 import java.util.List;
 import racobos.com.manhattan20.R;
 import racobos.com.manhattan20.ui.components.views.ViewComponent;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by raulcobos on 13/9/16.
@@ -52,14 +55,16 @@ public class PaginatedListComponent implements ViewComponent {
       @Override
       public void onLoadMore() {
         progressBar.setVisibility(View.VISIBLE);
-        renderer.getNextPageItems().subscribe(elements -> {
-          renderer.addElements((List) elements);
-          paginatedListAdapter.notifyDataSetChanged();
-          progressBar.setVisibility(View.GONE);
-        }, t -> {
-          Log.e(Renderer.class.getSimpleName(), "error on getNextPageItems method");
-          progressBar.setVisibility(View.GONE);
-        });
+        renderer.getNextPageItems()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(elements -> {
+                  renderer.addElements((List) elements);
+                  paginatedListAdapter.notifyDataSetChanged();
+                }, t -> {
+                  Log.e(Renderer.class.getSimpleName(), "error on getNextPageItems method");
+                  progressBar.setVisibility(View.GONE);
+                }, () -> progressBar.setVisibility(View.GONE));
       }
     });
     recyclerView.setAdapter(paginatedListAdapter);
@@ -71,10 +76,10 @@ public class PaginatedListComponent implements ViewComponent {
 
   public static abstract class Renderer<T, V extends RecyclerView.ViewHolder> {
 
-    private List<T> elements;
+    private List<T> elements = new ArrayList<>();
 
     public Renderer(List<T> elements) {
-      this.elements = elements;
+      this.elements.addAll(elements);
     }
 
     public List<T> getElements() {
@@ -82,9 +87,7 @@ public class PaginatedListComponent implements ViewComponent {
     }
 
     public void addElements(List<T> elements) {
-      if (elements != null) {
-        this.elements.addAll(elements);
-      }
+      this.elements.addAll(elements);
     }
 
     @LayoutRes

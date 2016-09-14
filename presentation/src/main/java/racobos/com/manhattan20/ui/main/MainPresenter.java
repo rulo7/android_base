@@ -3,6 +3,7 @@ package racobos.com.manhattan20.ui.main;
 import com.racobos.rosie.domain.usecase.UseCaseHandler;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import racobos.com.manhattan20.bases.BasePresenter;
 import racobos.com.manhattan20.di.scopes.PerActivity;
@@ -49,7 +50,7 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
   public Observable<List<String>> nextPage() {
     i++;
     if (i < elements.length) {
-      return Observable.just(Arrays.asList(elements[i]));
+      return Observable.just(Arrays.asList(elements[i])).delay(3, TimeUnit.SECONDS);
     }
     return Observable.empty();
   }
