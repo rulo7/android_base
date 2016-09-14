@@ -45,8 +45,8 @@ public class MainActivity extends BaseActivity implements MainPresenter.MainView
   }
 
   @Override
-  public void configureAdapter(List<String> elements) {
-    mainComposer.setConfiguration(new MainRenderer(elements));
+  public void configureAdapter(List<String> elements, int startPage, int maxPages) {
+    mainComposer.setConfiguration(startPage, maxPages, new MainRenderer(elements));
   }
 
   @Override

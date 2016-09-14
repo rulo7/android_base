@@ -17,9 +17,9 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
 
   private String[][] elements = new String[][] {
           { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l" },
-          { "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w" }
+          { "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w" }, { "x", "y", "z" }
   };
-  private int i = 0;
+  private int nextPage = 1;
 
   @Inject
   public MainPresenter(UseCaseHandler useCaseHandler) {
@@ -34,7 +34,7 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
   @Override
   public void update() {
     super.update();
-    getView().configureAdapter(Arrays.asList(elements[i]));
+    getView().configureAdapter(Arrays.asList(elements[0]), nextPage, elements.length);
   }
 
   @Override
@@ -48,14 +48,12 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
   }
 
   public Observable<List<String>> nextPage() {
-    i++;
-    if (i < elements.length) {
-      return Observable.just(Arrays.asList(elements[i])).delay(3, TimeUnit.SECONDS);
-    }
-    return Observable.empty();
+    Observable<List<String>> o = Observable.just(Arrays.asList(elements[nextPage])).delay(3, TimeUnit.SECONDS);
+    nextPage++;
+    return o;
   }
 
   public interface MainView extends BasePresenter.BaseView {
-    void configureAdapter(List<String> elements);
+    void configureAdapter(List<String> elements, int startPage, int maxPages);
   }
 }

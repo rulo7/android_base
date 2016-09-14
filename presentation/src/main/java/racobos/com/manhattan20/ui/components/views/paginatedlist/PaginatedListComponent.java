@@ -49,9 +49,18 @@ public class PaginatedListComponent implements ViewComponent {
   }
 
   public void setConfiguration(Renderer renderer) {
-    paginatedListAdapter = new PaginatedListAdapter(renderer);
-    recyclerView.setLayoutManager(new LinearLayoutManager(context));
-    recyclerView.addOnScrollListener(new RecyclerPaginatorScrollListener() {
+    setAdapter(renderer);
+    recyclerView.addOnScrollListener(getPaginatedScrollListener(renderer, null, null));
+  }
+
+  public void setConfiguration(int startingNextPage, int maxPages, Renderer renderer) {
+    setAdapter(renderer);
+    recyclerView.addOnScrollListener(getPaginatedScrollListener(renderer, startingNextPage, maxPages));
+  }
+
+  private RecyclerPaginationScrollListener getPaginatedScrollListener(Renderer renderer, Integer startingNextPage,
+          Integer maxPages) {
+    return new RecyclerPaginationScrollListener(startingNextPage, maxPages) {
       @Override
       public void onLoadMore() {
         progressBar.setVisibility(View.VISIBLE);
@@ -66,7 +75,12 @@ public class PaginatedListComponent implements ViewComponent {
                   progressBar.setVisibility(View.GONE);
                 }, () -> progressBar.setVisibility(View.GONE));
       }
-    });
+    };
+  }
+
+  private void setAdapter(Renderer renderer) {
+    paginatedListAdapter = new PaginatedListAdapter(renderer);
+    recyclerView.setLayoutManager(new LinearLayoutManager(context));
     recyclerView.setAdapter(paginatedListAdapter);
   }
 
