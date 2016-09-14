@@ -1,13 +1,17 @@
 package racobos.com.manhattan20.ui.main;
 
+import com.racobos.manhattan20.usecases.ListElements;
 import com.racobos.rosie.domain.usecase.UseCaseHandler;
-import java.util.Arrays;
+import com.racobos.rosie.domain.usecase.annotation.Success;
+import com.racobos.rosie.domain.usecase.callback.OnSuccessCallback;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import racobos.com.manhattan20.bases.BasePresenter;
 import racobos.com.manhattan20.di.scopes.PerActivity;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
 
 /**
  * Created by raulcobos on 13/9/16.
@@ -15,15 +19,13 @@ import rx.Observable;
 @PerActivity
 public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
 
-  private String[][] elements = new String[][] {
-          { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l" },
-          { "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w" }, { "x", "y", "z" }
-  };
-  private int nextPage = 1;
+  private int nextPage = 0;
+  private ListElements listElements;
 
   @Inject
-  public MainPresenter(UseCaseHandler useCaseHandler) {
+  public MainPresenter(UseCaseHandler useCaseHandler, ListElements listElements) {
     super(useCaseHandler);
+    this.listElements = listElements;
   }
 
   @Override
@@ -34,7 +36,13 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
   @Override
   public void update() {
     super.update();
-    getView().configureAdapter(Arrays.asList(elements[0]), nextPage, elements.length);
+    createUseCaseCall(listElements).args(nextPage).onSuccess(new OnSuccessCallback() {
+      @Success
+      public void onElementsLoaded(List<String> elements, int nextPage, int maxPages) {
+        getView().configureAdapter(elements, nextPage, maxPages);
+        MainPresenter.this.nextPage = nextPage;
+      }
+    }).execute();
   }
 
   @Override
@@ -48,9 +56,23 @@ public class MainPresenter extends BasePresenter<MainPresenter.MainView> {
   }
 
   public Observable<List<String>> nextPage() {
-    Observable<List<String>> o = Observable.just(Arrays.asList(elements[nextPage])).delay(3, TimeUnit.SECONDS);
-    nextPage++;
-    return o;
+    return Observable.create(new Observable.OnSubscribe<List<String>>() {
+      @Override
+      public void call(Subscriber subscriber) {
+        callUseCase(subscriber);
+      }
+    }).delay(3, TimeUnit.SECONDS);
+  }
+
+  private void callUseCase(Observer<List<String>> subscriber) {
+    createUseCaseCall(listElements).args(nextPage).onSuccess(new OnSuccessCallback() {
+      @Success
+      public void onElementsLoaded(List<String> elements, int nextPage, int maxPages) {
+        subscriber.onNext(elements);
+        MainPresenter.this.nextPage = nextPage;
+        subscriber.onCompleted();
+      }
+    }).execute();
   }
 
   public interface MainView extends BasePresenter.BaseView {

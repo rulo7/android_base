@@ -39,9 +39,7 @@ android {
 }
 
 dependencies {
-    debugCompile project(path: ':domain', configuration: 'debug')
-    stagingCompile project(path: ':domain', configuration: 'debug')
-    releaseCompile project(path: ':domain', configuration: 'release')
+    compile project(':domain');
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.racobos:rosie_compatible_dagger_2:0.0.1@aar'

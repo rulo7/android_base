@@ -47,9 +47,7 @@ android {
 
 dependencies {
     // Dependencies with the rest of modules
-    debugCompile project(path: ':domain', configuration: 'debug')
-    stagingCompile project(path: ':domain', configuration: 'debug')
-    releaseCompile project(path: ':domain', configuration: 'release')
+    compile project(':domain');
 
     debugCompile project(path: ':data', configuration: 'debug')
     stagingCompile project(path: ':data', configuration: 'staging')
